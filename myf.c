@@ -6,6 +6,8 @@
 #include <math.h>
 #include <ncurses.h>			/* ncurses.h includes stdio.h */  
 #include <string.h> 
+#include <time.h>
+#include <stdlib.h>
 #include "myf.h"
 #include "prototypes.h"
 
@@ -85,111 +87,63 @@ void printboard2(sos *jg){
 
 
 void printboard(sos *jg){
-
-
-  //my_win = create_newwin(25, 50, 0, 0);
-  
- 
- int row,col;		/* to store the number of rows and */
+ int row,col, l, c;
  int num=1;
- int let=97;
- /*the number of colums of the screen */
+ int count1=3, let=97;
  
  //while (getch()!= '\n'){
- 				/* start the curses mode */
  start_color();
  
  init_pair(1, COLOR_RED, COLOR_BLACK);
  init_pair(2, COLOR_YELLOW, COLOR_BLACK);
  curs_set(2);
+ /*mvprintw(0,col,"   %c  ",let-8);
+ mvprintw(34,col,"   %c  ",let-8);
+ let++;*/
  
- 
- for(row=1;row<35;row++){
-	 mvprintw(1,1,"+",0);
-	 if((row-1)%4==0) mvprintw(row,1,"+",0);
-	 for(col=2; col<66;col+=8){
-			 mvprintw(0,col,"   %c  ",let-8);
-			 if(row<34){
-			 	if((row-1)%4==0) mvprintw(row,col," - - - +",0);
+ for(row=1, l=0;row<34;row++, l++){
+	 for(col=1, c=0; col<34;col+=4, c++){
+			 	if((row-1)%4==0 ) {
+                                        mvprintw(row,1,"%s","+");
+                                        if(col <30) mvprintw(row,col+1,"%s","---+");
+                                }
 			 	if((row-1)%4==1) {
-					mvprintw(row,col-1,"|",0);
-					mvprintw(row,65,"|",0);
+					mvprintw(row,col,"%s","|");
+				        mvprintw(row,33,"%s","|");
 			 	}
 			 	if((row-1)%4==2) {
-					mvprintw(row,col-1,"|",0);
-					mvprintw(row,65,"|",0);
-					mvprintw(row,0,"%d",num/8);
-					mvprintw(row,66,"%d",num/8);
+					mvprintw(row,col,"%s","|");
+					mvprintw(row,33,"%s","|");
+					if (col<30) {
+                                                mvprintw(row,0,"%d",num/8);
+					        mvprintw(row,34,"%d",num/8);
+                                        }
+                                        if(col<33) mvprintw(row, col+2,"%c",jg->V[row/4][col/4]);
 					num++;
 			 	}
 			 	if((row-1)%4==3) {
-					mvprintw(row,col-1,"|",0);
-			 		mvprintw(row,65,"|",0);
-			 	}
-	 		}
-			mvprintw(34,col,"   %c  ",let-8);
-			let++;
-		}		
-	 }
-
-
-	for(row=1;row<35;row++){
-	 for(col=2; col<73;col+=8){
-			 if(row<34){
-			 	if((row-1)%4==1) {
-					if(jg->L[row/4][col/8] & NW_MASK){
-                                                if(jg->L[row/4][col/8]==jg->C[row/4][col/8]){
-                                                        attron(COLOR_PAIR(1));
-                                                        mvprintw(row/4,col/8,"\\",0);
-                                                        attroff(COLOR_PAIR(1));
-                                                }
-                                                else {attron(COLOR_PAIR(2)); mvprintw(row/4,col/8,"\\",0);attroff(COLOR_PAIR(2));}
-                                        }
-                                        if( jg->L[row/4][col/8] & N_MASK){
-                                                if(jg->L[row/4][col/8]==jg->C[row/4][col/8]){
-                                                        attron(COLOR_PAIR(1));
-                                                        mvprintw(row/4,col/8,"|",0);
-                                                        attroff(COLOR_PAIR(1));
-                                                }
-                                                else {attron(COLOR_PAIR(2)); mvprintw(row/4,col/8,"\\",0);attroff(COLOR_PAIR(2));}
-                                        }
-                                        if( jg->L[row/4][col/8] & NE_MASK) {
-                                                if(jg->L[row/4][col/8]==jg->C[row/4][col/8]){
-                                                        attron(COLOR_PAIR(1));
-                                                        mvprintw(row/4,col/8,"/",0);
-                                                        attroff(COLOR_PAIR(1));
-                                                }
-                                                else {attron(COLOR_PAIR(2)); mvprintw(row/4,col/8,"\\",0);attroff(COLOR_PAIR(2));}
-                                        }
-			 	}
-
-			 	if((row-1)%4==2) {
-					mvprintw(row,col-5,"%c",jg->V[row/4][col/8]);
-                                        move(200,100);
-                                        //printf("%c\n",jg->V[row/4][col/8]);
-				}
-			 	if((row-1)%4==3) {
-			 	}
-	 		}
-		}
-		
+					mvprintw(row,col,"%s","|");
+			 		mvprintw(row,33,"%s","|");
+			        }
+                         
+		}	
 	}
+        while(let!=105){
+                mvprintw(0,count1,"%c",let);
+                mvprintw(34,count1,"%c",let);
+                count1+=4;
+                let++;
+        }
 
+        mvprintw(37,0,"%s","\n");
 
-
-
-	//printf("\n");
-
-
- //}
- //move(100,100);
- //getch();
  refresh();
 }
 
 
 void InitGame(sos *jg){
-       
+       jg->countJ1=0;
+       jg->countJ2=0;
         for(int l=0; l<8; l++){
                 for (int c=0; c<8; c++){
                         jg->V[l][c]=VAZIO;
@@ -205,19 +159,23 @@ int GetPlayerMove( num_player player){
         char str[3]={0};
         char let[100]={0};
         int move=0;
-        if(player%2==0) printw("It's player 2 turn!\n");
-        else printw("It's player 1 turn!\n");
-        printw("\nPlease put the letter indicating the column and the number indicating the line and press enter: ");
+        if(player%2==0) mvprintw(10,50,"%s\n","It's player 2 turn!"); 
+        //printf("\nIt is player 2 turn");
+        else mvprintw(10,50,"%s","It's player 1 turn!");      
+        //printf("\nIt is player 1 turn");
+        mvprintw(12,50,"%s","Please put the letter indicating the column and the number indicating the line and press enter: ");
+        //printf("\nPlease put the letter indicating the column and the number indicating the line and press enter: ");
         scanf("%s",str);
-        printw("\nPease enter the letter (S or O) that you would like to have: ");
+        mvprintw(14,50,"%s","Please enter the letter (S or O) that you would like to have: ");
+        //printf("\nPlease enter the letter (S or O) that you would like to have: ");
         scanf("%s",let);
-        //printf("\n");
+        mvprintw(10,70,"%s%s",let,str);
         strcat(let,str);
-        //printf("%s\n",let);
         if (let[0]== 'S' || let[0]=='s') move=200;
         if (let[0]== 'O' || let[0]=='o') move=100;
         move+=(let[1]-96)*10;
         move+=(let[2]-48);
+        mvprintw(15,50,"%d",move);
         return move;
 }
 
@@ -230,17 +188,18 @@ int CheckAndSetMove(sos *jg, int move, num_player player, int action){ // return
                 if(l>=1 && l<=8){
                         if(c>=1 && c<=8){
                                 if(jg->V[l-1][c-1]==VAZIO){
-                                action=1;
-                                if(player%2==0) jg->P[l-1][c-1]=2;
-                                else jg->P[l-1][c-1]=1;
-                                if(let==1)jg->V[l-1][c-1]=LETRA_O;
-                                else jg->V[l-1][c-1]=LETRA_S;
+                                        action=1;
+                                        if(player%2==0) jg->P[l-1][c-1]=2;
+                                        else jg->P[l-1][c-1]=1;
+                                        if(let==1)jg->V[l-1][c-1]=LETRA_O;
+                                        else jg->V[l-1][c-1]=LETRA_S;
+                                        return action;
                                 }
+                                else printf("Press c to continue, t for toggle, x for exit and r to reset\n"); //modify here with numbers and return them
                         }
                 }
         }
-        else action=0;
-        return action;
+        else return 0;
 }
 
 int TestSeqDir(sos *t, int line, int col, int dir){
@@ -419,6 +378,9 @@ void UpdateDirInfo( sos *t, int line, int col, int dir, int player){
         line=line-1;
         col=col-1;
 
+        if(player%2 ==1) t->countJ1++;
+        else t->countJ2++;
+
         switch (dir)
         {
         case N_MASK :
@@ -559,20 +521,28 @@ int CheckSequence(sos *jg, int move, num_player player){
 }
 
 
-/*
+int GenerateMove(sos *jg){
+        int move, num, let, SorO;
+        srand(time(NULL));
+        let=(rand() % 8)+1;
+        num=(rand() % 8)+1;
+        SorO=(rand() % 2)+1;
+        move=SorO*100+let*10+num;
+        return move;
+}
 
-typedef enum { VAZIO=' ', LETRA_O='O', LETRA_S='S'} cell;
-typedef enum { JOGADOR1=1, JOGADOR2=2} num_player;
-typedef unsigned link;
-typedef unsigned color;
-typedef struct {
-        cell  V[8][8];  // Array bidimensional [8][8] com o valor de cada célula (VAZIO, LETRA_S ou LETRA_O)
-        link  L[8][8];  // Array bidimensional [8][8] com as ligações de cada célula (1+2+4+8+16+32+64+128) - se existe ou não
-        color C[8][8];  // Array bidimensional [8][8] com as cores das ligações de cada célula (1+2+4+8+16+32+64+128) - qual a cor (jogador)
-        num_player P[8][8]; // Array bidimensional [8][8] com a indicação de qual o jogador que jogou a letra
-        num_player turn;   // inteiro que designa quem é a vez do próximo a jogar (JOGADOR1 ou JOGADOR2)
-        int countJ1;    // número de sequências SOS completadas pelo Jogagor 1 até ao momento (0 ou mais)
-        int countJ2;    // número de sequências SOS completadas pelo Jogagor 2 até ao momento (0 ou mais)
-        } sos;
+int GameEnded(sos *t){
+        int counter=0;
+        for (int l=0; l<8; l++){
+                for (int c=0; c<8 ; c++){
+                        if (t->V[l][c]==VAZIO) counter++;
+                }
+        }
+        if (counter == 0) return 1;
+        else return 0;
+}
 
-*/
+void CommunicateResults( sos *t ){
+        printf("Points for player 1 : %d\n", t->countJ1);
+        printf("Points for player 2 : %d\n", t->countJ2);
+}
