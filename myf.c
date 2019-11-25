@@ -86,33 +86,80 @@ void printboard2(sos *jg){
 }
 
 
-void printboard(sos *jg){
- int row,col, l, c;
+void printboard(sos *jg, int toggle){
+ int row,col;
  int num=1;
  int count1=3, let=97;
- 
- //while (getch()!= '\n'){
+
+ if(has_colors() == FALSE)
+	{	endwin();
+		printf("Your terminal does not support color\n");
+		exit(1);
+	}
+
  start_color();
  
  init_pair(1, COLOR_RED, COLOR_BLACK);
  init_pair(2, COLOR_YELLOW, COLOR_BLACK);
- curs_set(2);
- /*mvprintw(0,col,"   %c  ",let-8);
- mvprintw(34,col,"   %c  ",let-8);
- let++;*/
+ curs_set(0);
  
- for(row=1, l=0;row<34;row++, l++){
-	 for(col=1, c=0; col<34;col+=4, c++){
+ for(row=1;row<34;row++){
+	 for(col=1; col<34;col+=4){
 			 	if((row-1)%4==0 ) {
                                         mvprintw(row,1,"%s","+");
                                         if(col <30) mvprintw(row,col+1,"%s","---+");
                                 }
 			 	if((row-1)%4==1) {
-					mvprintw(row,col,"%s","|");
+					if(jg->L[row/4][col/4] & NW_MASK && col<33){
+                                                if(jg->C[row/4][col/4]==(jg->C[row/4][col/4] & (NW_MASK*(jg->turn==JOGADOR2)))){
+                                                        //C[3][5] = C[3][5] | (NE_MASK*(player==JOGADOR2)) ;
+                                                        attron(COLOR_PAIR(1));
+                                                        mvprintw(row,col+1,"%s","\\");
+                                                        attroff(COLOR_PAIR(1));
+                                                }
+                                                else {attron(COLOR_PAIR(2)); mvprintw(row,col+1,"%s","\\");attroff(COLOR_PAIR(2));}
+                                        }
+                                        if( (jg->L[row/4][col/4] & N_MASK) && col<33){
+                                                if(jg->C[row/4][col/4]==(jg->C[row/4][col/4] & (N_MASK*(jg->turn==JOGADOR2)))){
+                                                        attron(COLOR_PAIR(1));
+                                                        mvprintw(row,col+2,"%s","|");
+                                                        attroff(COLOR_PAIR(1));
+                                                }
+                                                else {attron(COLOR_PAIR(2));mvprintw(row,col+2,"%s","|");attroff(COLOR_PAIR(2));}
+                                        }
+                                        if( jg->L[row/4][col/4] & NE_MASK && col<33) {
+                                                if(jg->L[row/4][col/4]==jg->C[row/4][col/4]){
+                                                        attron(COLOR_PAIR(1));
+                                                        mvprintw(row,col+3,"%s","/");
+                                                        attroff(COLOR_PAIR(1));
+                                                }
+                                                else {attron(COLOR_PAIR(2)); mvprintw(row,col+3,"%s","/");attroff(COLOR_PAIR(2));}
+                                        }
+                                        
+                                        
+                                        mvprintw(row,col,"%s","|");
 				        mvprintw(row,33,"%s","|");
 			 	}
 			 	if((row-1)%4==2) {
-					mvprintw(row,col,"%s","|");
+					if(jg->L[row/4][col/4] & W_MASK && col<33){
+                                                if(jg->L[row/4][col/4]==jg->C[row/4][col/4]){
+                                                        attron(COLOR_PAIR(2));
+                                                        mvprintw(row,col+1,"%s","-");
+                                                        attroff(COLOR_PAIR(2));
+                                                }
+                                                else {attron(COLOR_PAIR(1)); mvprintw(row,col+1,"%s","-");attroff(COLOR_PAIR(1));}
+                                        }
+                                        if( (jg->L[row/4][col/4] & E_MASK) && col<33){
+                                                if(jg->L[row/4][col/4]==jg->C[row/4][col/4]){
+                                                        attron(COLOR_PAIR(1));
+                                                        mvprintw(row,col+3,"%s","-");
+                                                        attroff(COLOR_PAIR(1));
+                                                }
+                                                else {attron(COLOR_PAIR(2));mvprintw(row,col+3,"%s","-");attroff(COLOR_PAIR(2));}
+                                        }
+                                        
+                                        
+                                        mvprintw(row,col,"%s","|");
 					mvprintw(row,33,"%s","|");
 					if (col<30) {
                                                 mvprintw(row,0,"%d",num/8);
@@ -122,6 +169,63 @@ void printboard(sos *jg){
 					num++;
 			 	}
 			 	if((row-1)%4==3) {
+                                        if (row==4){
+                                                if(jg->L[row/4][col/4] & SW_MASK && col<33){
+                                                        if(jg->L[row/4][col/4]==jg->C[row/4][col/4]){
+                                                                attron(COLOR_PAIR(1));
+                                                                mvprintw(4,col+5,"%s","/");
+                                                                attroff(COLOR_PAIR(1));
+                                                        }
+                                                        else {attron(COLOR_PAIR(2)); mvprintw(4,col+5,"%s","/");attroff(COLOR_PAIR(2));}
+                                                }
+                                                if( (jg->L[row/4][col/4] & S_MASK) && col<33){
+                                                        if(jg->L[row/4][col/4]==jg->C[row/4][col/4]){
+                                                                attron(COLOR_PAIR(1));
+                                                                mvprintw(4,col+2,"%s","|");
+                                                                attroff(COLOR_PAIR(1));
+                                                        }
+                                                        else {attron(COLOR_PAIR(2));mvprintw(4,col+2,"%s","|");attroff(COLOR_PAIR(2));}
+                                                }
+                                                if( jg->L[row/4][col/4] & SE_MASK && col<33) {
+                                                        if(jg->L[row/4][col/4]==jg->C[row/4][col/4]){
+                                                                attron(COLOR_PAIR(1));
+                                                                mvprintw(4,col-1,"%s","\\");
+                                                                attroff(COLOR_PAIR(1));
+                                                        }
+                                                        else {attron(COLOR_PAIR(2)); mvprintw(4,col-1,"%s","\\");attroff(COLOR_PAIR(2));}
+                                                }
+                                        
+                                        
+                                        
+                                        }
+                                        
+                                                if(jg->L[row/4][col/4] & SW_MASK && col<33){
+                                                        if(jg->L[row/4][col/4]==jg->C[row/4][col/4]){
+                                                                attron(COLOR_PAIR(1));
+                                                                mvprintw(row+4,col+1,"%s","/");
+                                                                attroff(COLOR_PAIR(1));
+                                                        }
+                                                        else {attron(COLOR_PAIR(2)); mvprintw(row+4,col+1,"%s","/");attroff(COLOR_PAIR(2));}
+                                                }
+                                                if( (jg->L[row/4][col/4] & S_MASK) && col<33){
+                                                        if(jg->L[row/4][col/4]==jg->C[row/4][col/4]){
+                                                                attron(COLOR_PAIR(1));
+                                                                mvprintw(row+4,col+2,"%s","|");
+                                                                attroff(COLOR_PAIR(1));
+                                                        }
+                                                        else {attron(COLOR_PAIR(2));mvprintw(row+4,col+2,"%s","|");attroff(COLOR_PAIR(2));}
+                                                }
+                                                if( jg->L[row/4][col/4] & SE_MASK && col<33) {
+                                                        if(jg->L[row/4][col/4]==jg->C[row/4][col/4]){
+                                                                attron(COLOR_PAIR(1));
+                                                                mvprintw(row+4,col+3,"%s","\\");
+                                                                attroff(COLOR_PAIR(1));
+                                                        }
+                                                        else {attron(COLOR_PAIR(2)); mvprintw(row+4,col+3,"%s","\\");attroff(COLOR_PAIR(2));}
+                                                }
+                                        
+
+
 					mvprintw(row,col,"%s","|");
 			 		mvprintw(row,33,"%s","|");
 			        }
@@ -156,50 +260,106 @@ void InitGame(sos *jg){
 }
 
 int GetPlayerMove( num_player player){
+        
         char str[3]={0};
         char let[100]={0};
         int move=0;
-        if(player%2==0) mvprintw(10,50,"%s\n","It's player 2 turn!"); 
+        if(player==2) {
+                mvprintw(10,50,"%s\n","It's player 2 turn!"); 
+                mvprintw(12,50,"%s","Please put the letter (from a to h) indicating the column and the number (from 1 to 8) indicating the line and press enter: ");
+                mvprintw(14,50,"%s","Please enter the letter (S or O) that you would like to have and press enter: ");
+        }
         //printf("\nIt is player 2 turn");
-        else mvprintw(10,50,"%s","It's player 1 turn!");      
+        else {
+                mvprintw(10,50,"%s","It's player 1 turn!"); 
+                mvprintw(12,50,"%s","Please put the letter (from a to h) indicating the column and the number (from 1 to 8) indicating the line and press enter: ");
+                mvprintw(14,50,"%s","Please enter the letter (S or O) that you would like to have and press enter: ");
+        }  
+        refresh();   
         //printf("\nIt is player 1 turn");
-        mvprintw(12,50,"%s","Please put the letter indicating the column and the number indicating the line and press enter: ");
         //printf("\nPlease put the letter indicating the column and the number indicating the line and press enter: ");
-        scanf("%s",str);
-        mvprintw(14,50,"%s","Please enter the letter (S or O) that you would like to have: ");
+        scanw("%s",str);
         //printf("\nPlease enter the letter (S or O) that you would like to have: ");
-        scanf("%s",let);
-        mvprintw(10,70,"%s%s",let,str);
+        scanw("%s",let);
+
         strcat(let,str);
+        mvprintw(20,50,"%s",let);
         if (let[0]== 'S' || let[0]=='s') move=200;
         if (let[0]== 'O' || let[0]=='o') move=100;
-        move+=(let[1]-96)*10;
-        move+=(let[2]-48);
-        mvprintw(15,50,"%d",move);
+        if ((let[1]-96)>=1 && (let[1]-96)<=8) move+=(let[1]-96)*10;
+        if ((let[2]-48)>=1 && (let[2]-48)<=8) move+=(let[2]-48);
+        mvprintw(19,50,"%d",move);
+        refresh();
         return move;
 }
 
 int CheckAndSetMove(sos *jg, int move, num_player player, int action){ // return 0 for no , 1 for yes
-        int let=0, l=0,c=0;
+        int let=0, l=0,c=0, count=0;
+        char str[5];
         let=move/100;
         c=(move%100)/10;
         l=(move%100)%10;
+        mvprintw(21,50,"%d %d %d",let,c,l);
         if (let>=1 && let<=2){
                 if(l>=1 && l<=8){
                         if(c>=1 && c<=8){
                                 if(jg->V[l-1][c-1]==VAZIO){
                                         action=1;
-                                        if(player%2==0) jg->P[l-1][c-1]=2;
+                                        if(player==2) jg->P[l-1][c-1]=2;
                                         else jg->P[l-1][c-1]=1;
                                         if(let==1)jg->V[l-1][c-1]=LETRA_O;
                                         else jg->V[l-1][c-1]=LETRA_S;
                                         return action;
                                 }
-                                else printf("Press c to continue, t for toggle, x for exit and r to reset\n"); //modify here with numbers and return them
+                                else {
+                                        while(count==0){
+                                                mvprintw(40,0,"%s","Press c to continue, t for toggle, x for exit and r to reset");
+                                                refresh();
+                                                scanw("%s",str);
+                                                if (str[0]=='c' || str[0]=='C') {count++;return 2;} //returning continue
+                                                if (str[0]=='t' || str[0]=='T') {count++;return 3;} // returning toggle
+                                                if (str[0]=='e' || str[0]=='E') {count++;return 4;} // returning exit
+                                                if (str[0]=='r' || str[0]=='R') {count++;return 5;} // returning reset
+                                        }
+                                }
+                        }
+                        else {
+                                while(count==0){
+                                        mvprintw(40,0,"%s","Press c to continue, t for toggle, x for exit and r to reset");
+                                        refresh();
+                                        scanw("%s",str);
+                                        if (str[0]=='c' || str[0]=='C') {count++;return 2;} //returning continue
+                                        if (str[0]=='t' || str[0]=='T') {count++;return 3;} // returning toggle
+                                        if (str[0]=='e' || str[0]=='E') {count++;return 4;} // returning exit
+                                        if (str[0]=='r' || str[0]=='R') {count++;return 5;} // returning reset
+                }
+
+                                }
+                }
+                else {
+                        while(count==0){
+                                mvprintw(40,0,"%s","Press c to continue, t for toggle, x for exit and r to reset");
+                                refresh();
+                                scanw("%s",str);
+                                if (str[0]=='c' || str[0]=='C') {count++;return 2;} //returning continue
+                                if (str[0]=='t' || str[0]=='T') {count++;return 3;} // returning toggle
+                                if (str[0]=='e' || str[0]=='E') {count++;return 4;} // returning exit
+                                if (str[0]=='r' || str[0]=='R') {count++;return 5;} // returning reset
                         }
                 }
         }
-        else return 0;
+        else {
+                while(count==0){
+                        mvprintw(40,0,"%s","Press c to continue, t for toggle, x for exit and r to reset");
+                        refresh();
+                        scanw("%s",str);
+                        if (str[0]=='c' || str[0]=='C') {count++;return 2;} //returning continue
+                        if (str[0]=='t' || str[0]=='T') {count++;return 3;} // returning toggle
+                        if (str[0]=='e' || str[0]=='E') {count++;return 4;} // returning exit
+                        if (str[0]=='r' || str[0]=='R') {count++;return 5;} // returning reset
+                }
+
+        }
 }
 
 int TestSeqDir(sos *t, int line, int col, int dir){
@@ -378,7 +538,7 @@ void UpdateDirInfo( sos *t, int line, int col, int dir, int player){
         line=line-1;
         col=col-1;
 
-        if(player%2 ==1) t->countJ1++;
+        if(player==1) t->countJ1++;
         else t->countJ2++;
 
         switch (dir)
@@ -392,11 +552,11 @@ void UpdateDirInfo( sos *t, int line, int col, int dir, int player){
                         break;
                 }
                 
-
+                
                 if(t->V[line][col]==LETRA_O){
-                        t->L[line-1][col] |= S_MASK;
                         t->L[line][col] |= N_MASK;
                         t->L[line][col] |= S_MASK;
+                        t->L[line-1][col] |= S_MASK;
                         t->L[line+1][col] |= N_MASK; 
                         break;
                 }
@@ -546,3 +706,23 @@ void CommunicateResults( sos *t ){
         printf("Points for player 1 : %d\n", t->countJ1);
         printf("Points for player 2 : %d\n", t->countJ2);
 }
+
+
+
+/*
+
+typedef enum { VAZIO=' ', LETRA_O='O', LETRA_S='S'} cell;
+typedef enum { JOGADOR1=1, JOGADOR2=2} num_player;
+typedef unsigned link;
+typedef unsigned color;
+typedef struct {
+        cell  V[8][8];  // Array bidimensional [8][8] com o valor de cada célula (VAZIO, LETRA_S ou LETRA_O)
+        link  L[8][8];  // Array bidimensional [8][8] com as ligações de cada célula (1+2+4+8+16+32+64+128) - se existe ou não
+        color C[8][8];  // Array bidimensional [8][8] com as cores das ligações de cada célula (1+2+4+8+16+32+64+128) - qual a cor (jogador)
+        num_player P[8][8]; // Array bidimensional [8][8] com a indicação de qual o jogador que jogou a letra
+        num_player turn;   // inteiro que designa quem é a vez do próximo a jogar (JOGADOR1 ou JOGADOR2)
+        int countJ1;    // número de sequências SOS completadas pelo Jogagor 1 até ao momento (0 ou mais)
+        int countJ2;    // número de sequências SOS completadas pelo Jogagor 2 até ao momento (0 ou mais)
+        } sos;
+
+*/
